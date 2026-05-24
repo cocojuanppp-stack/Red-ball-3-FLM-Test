@@ -2,14 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Red Ball 3 - Touch Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Red Ball 3 - Fullscreen Touch Edition</title>
     <style>
-        /* Estilos para centrar el juego y poner fondo oscuro */
         body {
             margin: 0;
             padding: 0;
-            background-color: #111;
+            background-color: #000;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
@@ -21,10 +20,10 @@
             -webkit-user-select: none;
         }
 
+        /* El contenedor del juego ahora toma todo el espacio superior de forma óptima */
         #game-container {
             width: 100%;
-            max-width: 800px;
-            height: 60%;
+            height: 70%; /* Le damos más espacio al juego */
             background-color: #000;
             position: relative;
         }
@@ -34,52 +33,58 @@
             height: 100%;
         }
 
-        /* Controles táctiles en la parte inferior */
+        /* Controles mejor posicionados abajo */
         #controls {
             width: 100%;
-            height: 40%;
+            height: 30%;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            background-color: #222;
+            background-color: #151515;
             padding: 10px;
             box-sizing: border-box;
+            border-top: 2px solid #252525;
         }
 
         .d-pad {
             display: flex;
-            gap: 20px;
+            gap: 25px;
         }
 
         .btn {
-            width: 80px;
-            height: 80px;
-            background-color: #444;
+            width: 85px;
+            height: 85px;
+            background-color: #333;
             color: white;
-            border: 3px solid #666;
+            border: 4px solid #555;
             border-radius: 50%;
-            font-size: 30px;
+            font-size: 35px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: none; /* Evita zoom molesto al tocar */
+            touch-action: none;
+            box-shadow: 0 6px #222;
         }
 
         .btn:active {
-            background-color: #888;
+            background-color: #666;
             border-color: #fff;
+            transform: translateY(4px);
+            box-shadow: 0 2px #222;
         }
 
         #btn-jump {
-            width: 90px;
-            height: 90px;
+            width: 95px;
+            height: 95px;
             background-color: #ff5722;
             border-color: #ff7043;
+            box-shadow: 0 6px #b33c15;
         }
         
         #btn-jump:active {
             background-color: #ff8a65;
+            box-shadow: 0 2px #b33c15;
         }
     </style>
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
@@ -99,19 +104,35 @@
     </div>
 
     <script>
-        // Inicializar el emulador Ruffle
         window.RufflePlayer = window.RufflePlayer || {};
+        window.RufflePlayer.config = {
+            "allowScriptAccess": true,
+            "forceScale": true,
+            "forceAlign": true,
+            "quality": "high",
+            "autoplay": "on", // <-- ACTIVA EL AUTOPLAY TOTAL DE RUFFLE
+            "unmuteOverlay": "hidden", // Oculta cualquier aviso molesto de sonido
+            "letterbox": "on"
+        };
+
         window.addEventListener("load", (event) => {
             const ruffle = window.RufflePlayer.newest();
             const player = ruffle.createPlayer();
             const container = document.getElementById("ruffle");
             container.appendChild(player);
             
-            // ¡IMPORTANTE!: Pon aquí el nombre exacto de tu archivo .swf del juego
-            player.load("redball3.swf"); 
+            player.load({
+                url: "redball3.swf",
+                autoplay: true, // Forzar inicio automático
+                allowScriptAccess: true
+            });
+
+            // Auto-ajustar a pantalla completa interna en el reproductor
+            player.style.width = "100%";
+            player.style.height = "100%";
         });
 
-        // Simulador de eventos de teclado de PC para los botones táctiles
+        // Simulador de pulsación de teclado
         function simulateKey(keyCode, keyName, eventType) {
             const event = new KeyboardEvent(eventType, {
                 key: keyName,
@@ -124,24 +145,20 @@
             document.dispatchEvent(event);
         }
 
-        // Configurar funciones táctiles para cada botón
         function setupButton(id, keyCode, keyName) {
             const btn = document.getElementById(id);
             
-            // Al tocar el botón (Presionar tecla)
             btn.addEventListener("touchstart", (e) => {
                 e.preventDefault();
                 simulateKey(keyCode, keyName, "keydown");
             });
 
-            // Al soltar el botón (Soltar tecla)
             btn.addEventListener("touchend", (e) => {
                 e.preventDefault();
                 simulateKey(keyCode, keyName, "keyup");
             });
         }
 
-        // Mapeo de controles: Flecha Izquierda (37), Flecha Derecha (39), Flecha Arriba para saltar (38)
         setupButton("btn-left", 37, "ArrowLeft");
         setupButton("btn-right", 39, "ArrowRight");
         setupButton("btn-jump", 38, "ArrowUp");
@@ -149,4 +166,3 @@
 
 </body>
 </html>
-
