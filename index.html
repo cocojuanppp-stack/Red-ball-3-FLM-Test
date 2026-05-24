@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Red Ball 3 - Touch Edition</title>
+    <title>Red Ball 3 - Optimized Edition</title>
     <style>
         html, body {
             margin: 0;
@@ -18,7 +18,7 @@
             position: fixed;
         }
 
-        /* Contenedor del juego de fondo */
+        /* CONTENEDOR OPTIMIZADO: Centra el juego perfectamente sin importar la pantalla */
         #game-container {
             width: 100%;
             height: 100%;
@@ -26,11 +26,16 @@
             top: 0;
             left: 0;
             z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #ruffle {
             width: 100%;
             height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
         }
 
         /* Capa superpuesta para los controles táctiles */
@@ -44,7 +49,7 @@
             pointer-events: none; 
         }
 
-        /* BLOQUE IZQUIERDO: Flechas horizontales (Izquierda y Derecha) */
+        /* BLOQUE IZQUIERDO: Flechas horizontales */
         #control-left-side {
             position: absolute;
             bottom: 35px; 
@@ -54,7 +59,7 @@
             pointer-events: auto;
         }
 
-        /* BLOQUE DERECHO: Columna vertical (Saltar arriba, Sumergirse abajo) */
+        /* BLOQUE DERECHO: Columna vertical (Saltar y Sumergirse) */
         #control-right-side {
             position: absolute;
             bottom: 35px;
@@ -81,21 +86,16 @@
             justify-content: center;
             touch-action: none;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.2);
-            transition: transform 0.05s ease;
         }
 
-        /* Efecto al presionar cualquier botón */
         .btn:active {
             transform: scale(0.92);
             background: rgba(255, 255, 255, 0.5);
             border-color: #fff;
             color: #000;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
-        /* DISEÑO EXCLUSIVO DE LOS BOTONES DERECHOS (De la imagen de referencia) */
-        
-        /* Botón de salto (Flecha Arriba) - Estilo Naranja clásico */
+        /* Botón de salto (Flecha Arriba) - Naranja */
         #btn-jump {
             background: linear-gradient(135deg, rgba(255, 112, 67, 0.6), rgba(244, 81, 30, 0.65));
             border-color: rgba(255, 171, 145, 0.45);
@@ -105,7 +105,7 @@
             color: #fff;
         }
 
-        /* Botón de sumergirse (Flecha Abajo) - Estilo Azul Agua */
+        /* Botón de sumergirse (Flecha Abajo) - Azul */
         #btn-down {
             background: linear-gradient(135deg, rgba(3, 169, 244, 0.55), rgba(2, 136, 209, 0.6));
             border-color: rgba(129, 212, 250, 0.45);
@@ -141,12 +141,10 @@
         window.RufflePlayer = window.RufflePlayer || {};
         window.RufflePlayer.config = {
             "allowScriptAccess": true,
-            "forceScale": true,
-            "forceAlign": true,
-            "quality": "high",
+            "quality": "low",          /* TRUCO 1: Baja la carga gráfica para quitar el lag */
             "autoplay": "on",
             "unmuteOverlay": "hidden",
-            "letterbox": "fullscreen",
+            "letterbox": "on",         /* TRUCO 2: Mantiene la proporción perfecta sin tirones */
             "contextMenu": false 
         };
 
@@ -204,11 +202,10 @@
             });
         }
 
-        // Configuración y mapeo de las teclas del teclado de Flash
         setupButton("btn-left", 37, "ArrowLeft");
         setupButton("btn-right", 39, "ArrowRight");
         setupButton("btn-jump", 38, "ArrowUp");
-        setupButton("btn-down", 40, "ArrowDown"); // Activa la física para hundirse
+        setupButton("btn-down", 40, "ArrowDown");
 
         document.addEventListener("touchstart", () => {
             activarPantallaCompletaNativa();
