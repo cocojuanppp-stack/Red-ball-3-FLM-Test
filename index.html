@@ -2,25 +2,120 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Red Ball Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Red Ball 3 - Centered & Optimized</title>
     <style>
         html, body {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; background-color: #000; position: fixed;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            position: fixed;
         }
+
+        /* CONTENEDOR MAESTRO: Alinea absolutamente todo en el centro exacto */
         #game-container {
-            width: 100vw; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            display: flex;
+            justify-content: center; /* Centrado horizontal */
+            align-items: center;     /* Centrado vertical */
         }
-        #ruffle { width: 100%; height: 100%; }
-        
-        /* Capa de controles (si los usas) */
+
+        /* Fuerza al canvas de Ruffle a respetar el centro sin estirarse raro */
+        #ruffle {
+            width: 100%;
+            height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Estilos de la capa de controles táctiles */
         #controls-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 999999; pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999; 
+            pointer-events: none; 
         }
-        .btn { pointer-events: auto; }
+
+        /* Bloque Izquierdo: Movimiento */
+        #control-left-side {
+            position: absolute;
+            bottom: 35px; 
+            left: 35px;
+            display: flex;
+            gap: 20px;
+            pointer-events: auto;
+        }
+
+        /* Bloque Derecho: Acción */
+        #control-right-side {
+            position: absolute;
+            bottom: 35px;
+            right: 35px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        /* Estilo base de los botones táctiles */
+        .btn {
+            width: 85px;
+            height: 85px;
+            background: linear-gradient(135deg, rgba(60, 60, 60, 0.55), rgba(35, 35, 35, 0.65));
+            color: rgba(255, 255, 255, 0.85);
+            border: 3px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            font-size: 36px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.5);
+            border-color: #fff;
+            color: #000;
+        }
+
+        #btn-jump {
+            background: linear-gradient(135deg, rgba(255, 112, 67, 0.6), rgba(244, 81, 30, 0.65));
+            border-color: rgba(255, 171, 145, 0.45);
+        }
+        #btn-jump:active {
+            background: rgba(244, 81, 30, 0.9);
+            color: #fff;
+        }
+
+        #btn-down {
+            background: linear-gradient(135deg, rgba(3, 169, 244, 0.55), rgba(2, 136, 209, 0.6));
+            border-color: rgba(129, 212, 250, 0.45);
+        }
+        #btn-down:active {
+            background: rgba(2, 136, 209, 0.85);
+            color: #fff;
+        }
     </style>
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 </head>
@@ -30,35 +125,97 @@
         <div id="ruffle"></div>
     </div>
 
+    <div id="controls-layer">
+        <div id="control-left-side">
+            <div id="btn-left" class="btn">◀</div>
+            <div id="btn-right" class="btn">▶</div>
+        </div>
+
+        <div id="control-right-side">
+            <div id="btn-jump" class="btn">▲</div>
+            <div id="btn-down" class="btn">▼</div>
+        </div>
+    </div>
+
     <script>
+        let player = null;
+
         window.RufflePlayer = window.RufflePlayer || {};
         window.RufflePlayer.config = {
-            "allowScriptAccess": true, "quality": "low", "autoplay": "on",
-            "unmuteOverlay": "hidden", "letterbox": "on", "wmode": "direct",
-            "preloader": false, "contextMenu": false
+            "allowScriptAccess": true,
+            "quality": "low",
+            "autoplay": "on",
+            "unmuteOverlay": "hidden",
+            /* CAMBIOS AQUÍ: Configuraciones de alineación nativa de Ruffle */
+            "letterbox": "on",
+            "forceScale": true,
+            "forceAlign": true,
+            "contextMenu": false 
         };
 
-        window.addEventListener("load", () => {
-            setTimeout(() => {
-                const ruffle = window.RufflePlayer.newest();
-                const player = ruffle.createPlayer();
-                document.getElementById("ruffle").appendChild(player);
-                
-                // CAMBIA ESTO SEGUN EL JUEGO: 'redball1.swf' o 'redball3.swf'
-                player.load({ 
-                    url: "redball1.swf", 
-                    allowScriptAccess: true, 
-                    wmode: "direct" 
-                });
-            }, 500);
+        window.addEventListener("load", (event) => {
+            const ruffle = window.RufflePlayer.newest();
+            player = ruffle.createPlayer();
+            const container = document.getElementById("ruffle");
+            container.appendChild(player);
+            
+            player.load({
+                url: "redball3.swf",
+                allowScriptAccess: true
+            });
         });
 
-        // Forzar pantalla completa al primer toque
-        document.addEventListener("touchstart", function() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) elem.requestFullscreen();
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-        }, {once: true});
+        function activarPantallaCompletaNativa() {
+            if (player && typeof player.play === "function") {
+                player.play();
+            }
+            const docElement = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (docElement.requestFullscreen) {
+                    docElement.requestFullscreen();
+                } else if (docElement.webkitRequestFullscreen) {
+                    docElement.webkitRequestFullscreen();
+                }
+            }
+        }
+
+        function simulateKey(keyCode, keyName, eventType) {
+            activarPantallaCompletaNativa();
+
+            const event = new KeyboardEvent(eventType, {
+                key: keyName,
+                code: keyName,
+                keyCode: keyCode,
+                which: keyCode,
+                bubbles: true,
+                cancelable: true
+            });
+            document.dispatchEvent(event);
+        }
+
+        function setupButton(id, keyCode, keyName) {
+            const btn = document.getElementById(id);
+            
+            btn.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                simulateKey(keyCode, keyName, "keydown");
+            });
+
+            btn.addEventListener("touchend", (e) => {
+                e.preventDefault();
+                simulateKey(keyCode, keyName, "keyup");
+            });
+        }
+
+        setupButton("btn-left", 37, "ArrowLeft");
+        setupButton("btn-right", 39, "ArrowRight");
+        setupButton("btn-jump", 38, "ArrowUp");
+        setupButton("btn-down", 40, "ArrowDown");
+
+        document.addEventListener("touchstart", () => {
+            activarPantallaCompletaNativa();
+        });
     </script>
+
 </body>
 </html>
