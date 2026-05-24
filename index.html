@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Red Ball 3 - Touch Edition</title>
+    <style>
+        /* Estilos para centrar el juego y poner fondo oscuro */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            height: 60%;
+            background-color: #000;
+            position: relative;
+        }
+
+        #ruffle {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Controles táctiles en la parte inferior */
+        #controls {
+            width: 100%;
+            height: 40%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #222;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .d-pad {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            width: 80px;
+            height: 80px;
+            background-color: #444;
+            color: white;
+            border: 3px solid #666;
+            border-radius: 50%;
+            font-size: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none; /* Evita zoom molesto al tocar */
+        }
+
+        .btn:active {
+            background-color: #888;
+            border-color: #fff;
+        }
+
+        #btn-jump {
+            width: 90px;
+            height: 90px;
+            background-color: #ff5722;
+            border-color: #ff7043;
+        }
+        
+        #btn-jump:active {
+            background-color: #ff8a65;
+        }
+    </style>
+    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="ruffle"></div>
+    </div>
+
+    <div id="controls">
+        <div class="d-pad">
+            <div id="btn-left" class="btn">◀</div>
+            <div id="btn-right" class="btn">▶</div>
+        </div>
+        <div id="btn-jump" class="btn">▲</div>
+    </div>
+
+    <script>
+        // Inicializar el emulador Ruffle
+        window.RufflePlayer = window.RufflePlayer || {};
+        window.addEventListener("load", (event) => {
+            const ruffle = window.RufflePlayer.newest();
+            const player = ruffle.createPlayer();
+            const container = document.getElementById("ruffle");
+            container.appendChild(player);
+            
+            // ¡IMPORTANTE!: Pon aquí el nombre exacto de tu archivo .swf del juego
+            player.load("redball3.swf"); 
+        });
+
+        // Simulador de eventos de teclado de PC para los botones táctiles
+        function simulateKey(keyCode, keyName, eventType) {
+            const event = new KeyboardEvent(eventType, {
+                key: keyName,
+                code: keyName,
+                keyCode: keyCode,
+                which: keyCode,
+                bubbles: true,
+                cancelable: true
+            });
+            document.dispatchEvent(event);
+        }
+
+        // Configurar funciones táctiles para cada botón
+        function setupButton(id, keyCode, keyName) {
+            const btn = document.getElementById(id);
+            
+            // Al tocar el botón (Presionar tecla)
+            btn.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                simulateKey(keyCode, keyName, "keydown");
+            });
+
+            // Al soltar el botón (Soltar tecla)
+            btn.addEventListener("touchend", (e) => {
+                e.preventDefault();
+                simulateKey(keyCode, keyName, "keyup");
+            });
+        }
+
+        // Mapeo de controles: Flecha Izquierda (37), Flecha Derecha (39), Flecha Arriba para saltar (38)
+        setupButton("btn-left", 37, "ArrowLeft");
+        setupButton("btn-right", 39, "ArrowRight");
+        setupButton("btn-jump", 38, "ArrowUp");
+    </script>
+
+</body>
+</html>
+
