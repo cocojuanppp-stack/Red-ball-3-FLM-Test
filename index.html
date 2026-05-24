@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Red Ball 3 - Landscape Edition</title>
+    <title>Red Ball 3 - Ultimate Fullscreen</title>
     <style>
-        body {
+        /* Forzamos a la página a ocupar absolutamente todo el celular sin márgenes */
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background-color: #000;
             font-family: Arial, sans-serif;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* El contenedor del juego ocupa TODA la pantalla de fondo */
+        /* Contenedor del juego de fondo: Estirado completo */
         #game-container {
             width: 100%;
             height: 100%;
@@ -32,51 +33,62 @@
             height: 100%;
         }
 
-        /* CONTROL IZQUIERDO (Flechas) fijo abajo a la izquierda */
+        /* Capa de controles: Forzada a estar SIEMPRE por encima (z-index altísimo) */
+        #controls-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999; /* Nada puede tapar esto */
+            pointer-events: none; /* Deja pasar los clics al juego si es necesario */
+        }
+
+        /* Posicionamiento de las flechas (Izquierda) */
         #control-left-side {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 25px;
+            left: 25px;
             display: flex;
             gap: 20px;
-            z-index: 10;
+            pointer-events: auto;
         }
 
-        /* CONTROL DERECHO (Salto) fijo abajo a la derecha */
+        /* Posicionamiento del Salto (Derecha) */
         #control-right-side {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 10;
+            bottom: 25px;
+            right: 25px;
+            pointer-events: auto;
         }
 
-        /* Diseño de los botones táctiles */
+        /* Estilo de botones limpios y responsivos */
         .btn {
-            width: 80px;
-            height: 80px;
-            background-color: rgba(51, 51, 51, 0.5); /* Semi-transparente para ver el mapa */
+            width: 85px;
+            height: 85px;
+            background-color: rgba(40, 40, 40, 0.5);
             color: rgba(255, 255, 255, 0.8);
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            font-size: 32px;
+            font-size: 34px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             touch-action: none;
+            box-shadow: 0 4px rgba(0,0,0,0.3);
         }
 
-        /* Efecto visual al mantener presionado */
         .btn:active {
-            background-color: rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.5);
             border-color: #fff;
             color: #000;
         }
 
         #btn-jump {
-            width: 90px;
-            height: 90px;
-            background-color: rgba(255, 87, 34, 0.5); /* Naranja transparente */
+            width: 95px;
+            height: 95px;
+            background-color: rgba(255, 87, 34, 0.5);
             border-color: rgba(255, 112, 67, 0.4);
         }
 
@@ -92,13 +104,15 @@
         <div id="ruffle"></div>
     </div>
 
-    <div id="control-left-side">
-        <div id="btn-left" class="btn">◀</div>
-        <div id="btn-right" class="btn">▶</div>
-    </div>
+    <div id="controls-layer">
+        <div id="control-left-side">
+            <div id="btn-left" class="btn">◀</div>
+            <div id="btn-right" class="btn">▶</div>
+        </div>
 
-    <div id="control-right-side">
-        <div id="btn-jump" class="btn">▲</div>
+        <div id="control-right-side">
+            <div id="btn-jump" class="btn">▲</div>
+        </div>
     </div>
 
     <script>
@@ -112,7 +126,7 @@
             "quality": "high",
             "autoplay": "on",
             "unmuteOverlay": "hidden",
-            "letterbox": "fullscreen" 
+            "letterbox": "fullscreen" /* Esto elimina las franjas negras estirando el SWF */
         };
 
         window.addEventListener("load", (event) => {
@@ -127,12 +141,22 @@
             });
         });
 
-        // Función para simular teclas y quitar el botón gigante de Ruffle
-        function simulateKey(keyCode, keyName, eventType) {
-            // Si el juego está pausado por el navegador, el primer toque lo arranca sí o sí
+        // Activa el juego y solicita pantalla completa nativa al navegador al primer toque
+        function activarPantallaCompleta() {
             if (player && typeof player.play === "function") {
                 player.play();
             }
+            
+            // Intenta ocultar de forma nativa la barra de direcciones de Chrome/WebView
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Esperando interacción para pantalla completa nativa...");
+                });
+            }
+        }
+
+        function simulateKey(keyCode, keyName, eventType) {
+            activarPantallaCompleta();
 
             const event = new KeyboardEvent(eventType, {
                 key: keyName,
@@ -163,11 +187,9 @@
         setupButton("btn-right", 39, "ArrowRight");
         setupButton("btn-jump", 38, "ArrowUp");
 
-        // "Despertador" extra si tocan cualquier zona de la pantalla vacía
+        // Cualquier toque en la pantalla despierta el juego y estira el HTML
         document.addEventListener("touchstart", () => {
-            if (player && typeof player.play === "function") {
-                player.play();
-            }
+            activarPantallaCompleta();
         });
     </script>
 
