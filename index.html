@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Red Ball 3 - Ultimate Fullscreen</title>
+    <title>Red Ball 3 - Touch Edition</title>
     <style>
-        /* Forzamos a la página a ocupar absolutamente todo el celular sin márgenes */
         html, body {
             margin: 0;
             padding: 0;
@@ -16,9 +15,10 @@
             font-family: Arial, sans-serif;
             user-select: none;
             -webkit-user-select: none;
+            position: fixed;
         }
 
-        /* Contenedor del juego de fondo: Estirado completo */
+        /* Contenedor del juego de fondo */
         #game-container {
             width: 100%;
             height: 100%;
@@ -33,67 +33,86 @@
             height: 100%;
         }
 
-        /* Capa de controles: Forzada a estar SIEMPRE por encima (z-index altísimo) */
+        /* Capa superpuesta para los controles táctiles */
         #controls-layer {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 999999; /* Nada puede tapar esto */
-            pointer-events: none; /* Deja pasar los clics al juego si es necesario */
+            z-index: 999999; 
+            pointer-events: none; 
         }
 
-        /* Posicionamiento de las flechas (Izquierda) */
+        /* BLOQUE IZQUIERDO: Flechas horizontales (Izquierda y Derecha) */
         #control-left-side {
             position: absolute;
-            bottom: 25px;
-            left: 25px;
+            bottom: 35px; 
+            left: 35px;
             display: flex;
             gap: 20px;
             pointer-events: auto;
         }
 
-        /* Posicionamiento del Salto (Derecha) */
+        /* BLOQUE DERECHO: Columna vertical (Saltar arriba, Sumergirse abajo) */
         #control-right-side {
             position: absolute;
-            bottom: 25px;
-            right: 25px;
+            bottom: 35px;
+            right: 35px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
             pointer-events: auto;
         }
 
-        /* Estilo de botones limpios y responsivos */
+        /* Estilo base de los botones táctiles */
         .btn {
             width: 85px;
             height: 85px;
-            background-color: rgba(40, 40, 40, 0.5);
-            color: rgba(255, 255, 255, 0.8);
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, rgba(60, 60, 60, 0.55), rgba(35, 35, 35, 0.65));
+            color: rgba(255, 255, 255, 0.85);
+            border: 3px solid rgba(255, 255, 255, 0.35);
             border-radius: 50%;
-            font-size: 34px;
+            font-size: 36px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             touch-action: none;
-            box-shadow: 0 4px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            transition: transform 0.05s ease;
         }
 
+        /* Efecto al presionar cualquier botón */
         .btn:active {
-            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.5);
             border-color: #fff;
             color: #000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
+        /* DISEÑO EXCLUSIVO DE LOS BOTONES DERECHOS (De la imagen de referencia) */
+        
+        /* Botón de salto (Flecha Arriba) - Estilo Naranja clásico */
         #btn-jump {
-            width: 95px;
-            height: 95px;
-            background-color: rgba(255, 87, 34, 0.5);
-            border-color: rgba(255, 112, 67, 0.4);
+            background: linear-gradient(135deg, rgba(255, 112, 67, 0.6), rgba(244, 81, 30, 0.65));
+            border-color: rgba(255, 171, 145, 0.45);
+        }
+        #btn-jump:active {
+            background: rgba(244, 81, 30, 0.9);
+            color: #fff;
         }
 
-        #btn-jump:active {
-            background-color: rgba(255, 87, 34, 0.8);
+        /* Botón de sumergirse (Flecha Abajo) - Estilo Azul Agua */
+        #btn-down {
+            background: linear-gradient(135deg, rgba(3, 169, 244, 0.55), rgba(2, 136, 209, 0.6));
+            border-color: rgba(129, 212, 250, 0.45);
+        }
+        #btn-down:active {
+            background: rgba(2, 136, 209, 0.85);
+            color: #fff;
         }
     </style>
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
@@ -112,6 +131,7 @@
 
         <div id="control-right-side">
             <div id="btn-jump" class="btn">▲</div>
+            <div id="btn-down" class="btn">▼</div>
         </div>
     </div>
 
@@ -126,7 +146,8 @@
             "quality": "high",
             "autoplay": "on",
             "unmuteOverlay": "hidden",
-            "letterbox": "fullscreen" /* Esto elimina las franjas negras estirando el SWF */
+            "letterbox": "fullscreen",
+            "contextMenu": false 
         };
 
         window.addEventListener("load", (event) => {
@@ -141,22 +162,22 @@
             });
         });
 
-        // Activa el juego y solicita pantalla completa nativa al navegador al primer toque
-        function activarPantallaCompleta() {
+        function activarPantallaCompletaNativa() {
             if (player && typeof player.play === "function") {
                 player.play();
             }
-            
-            // Intenta ocultar de forma nativa la barra de direcciones de Chrome/WebView
+            const docElement = document.documentElement;
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Esperando interacción para pantalla completa nativa...");
-                });
+                if (docElement.requestFullscreen) {
+                    docElement.requestFullscreen();
+                } else if (docElement.webkitRequestFullscreen) {
+                    docElement.webkitRequestFullscreen();
+                }
             }
         }
 
         function simulateKey(keyCode, keyName, eventType) {
-            activarPantallaCompleta();
+            activarPantallaCompletaNativa();
 
             const event = new KeyboardEvent(eventType, {
                 key: keyName,
@@ -183,13 +204,14 @@
             });
         }
 
+        // Configuración y mapeo de las teclas del teclado de Flash
         setupButton("btn-left", 37, "ArrowLeft");
         setupButton("btn-right", 39, "ArrowRight");
         setupButton("btn-jump", 38, "ArrowUp");
+        setupButton("btn-down", 40, "ArrowDown"); // Activa la física para hundirse
 
-        // Cualquier toque en la pantalla despierta el juego y estira el HTML
         document.addEventListener("touchstart", () => {
-            activarPantallaCompleta();
+            activarPantallaCompletaNativa();
         });
     </script>
 
