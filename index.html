@@ -2,101 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Red Ball 3 - Ultra Optimized</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Red Ball Game</title>
     <style>
         html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-            position: fixed;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #000; position: fixed;
         }
-
-        /* CENTRADO ABSOLUTO E IMPENETRABLE */
         #game-container {
-            width: 100vw;
-            height: 100vh;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
+            width: 100vw; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
         }
-
-        #ruffle {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Capa de controles */
+        #ruffle { width: 100%; height: 100%; }
+        
+        /* Capa de controles (si los usas) */
         #controls-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999999; 
-            pointer-events: none; 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 999999; pointer-events: none;
         }
-
-        #control-left-side {
-            position: absolute;
-            bottom: 35px; 
-            left: 35px;
-            display: flex;
-            gap: 20px;
-            pointer-events: auto;
-        }
-
-        #control-right-side {
-            position: absolute;
-            bottom: 35px;
-            right: 35px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
-            pointer-events: auto;
-        }
-
-        .btn {
-            width: 85px;
-            height: 85px;
-            background: linear-gradient(135deg, rgba(60, 60, 60, 0.55), rgba(35, 35, 35, 0.65));
-            color: rgba(255, 255, 255, 0.85);
-            border: 3px solid rgba(255, 255, 255, 0.35);
-            border-radius: 50%;
-            font-size: 36px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: none;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-        }
-
-        .btn:active {
-            transform: scale(0.92);
-            background: rgba(255, 255, 255, 0.5);
-            border-color: #fff;
-        }
-
-        #btn-jump {
-            background: linear-gradient(135deg, rgba(255, 112, 67, 0.6), rgba(244, 81, 30, 0.65));
-            border-color: rgba(255, 171, 145, 0.45);
-        }
-
-        #btn-down {
-            background: linear-gradient(135deg, rgba(3, 169, 244, 0.55), rgba(2, 136, 209, 0.6));
-            border-color: rgba(129, 212, 250, 0.45);
-        }
+        .btn { pointer-events: auto; }
     </style>
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 </head>
@@ -106,73 +30,35 @@
         <div id="ruffle"></div>
     </div>
 
-    <div id="controls-layer">
-        <div id="control-left-side">
-            <div id="btn-left" class="btn">◀</div>
-            <div id="btn-right" class="btn">▶</div>
-        </div>
-        <div id="control-right-side">
-            <div id="btn-jump" class="btn">▲</div>
-            <div id="btn-down" class="btn">▼</div>
-        </div>
-    </div>
-
     <script>
-        let player = null;
-
         window.RufflePlayer = window.RufflePlayer || {};
         window.RufflePlayer.config = {
-            "allowScriptAccess": true,
-            "quality": "low", 
-            "autoplay": "on",
-            "unmuteOverlay": "hidden",
-            "letterbox": "on",
-            "wmode": "direct",          /* TRUCO ACELERACIÓN: Renderiza usando la GPU */
-            "openUrlMode": "confirm",
-            "contextMenu": false
+            "allowScriptAccess": true, "quality": "low", "autoplay": "on",
+            "unmuteOverlay": "hidden", "letterbox": "on", "wmode": "direct",
+            "preloader": false, "contextMenu": false
         };
 
-        window.addEventListener("load", (event) => {
-            const ruffle = window.RufflePlayer.newest();
-            player = ruffle.createPlayer();
-            const container = document.getElementById("ruffle");
-            container.appendChild(player);
-            
-            player.load({
-                url: "redball3.swf",
-                allowScriptAccess: true,
-                wmode: "direct"
-            });
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                const ruffle = window.RufflePlayer.newest();
+                const player = ruffle.createPlayer();
+                document.getElementById("ruffle").appendChild(player);
+                
+                // CAMBIA ESTO SEGUN EL JUEGO: 'redball1.swf' o 'redball3.swf'
+                player.load({ 
+                    url: "redball1.swf", 
+                    allowScriptAccess: true, 
+                    wmode: "direct" 
+                });
+            }, 500);
         });
 
-        function simulateKey(keyCode, keyName, eventType) {
-            const event = new KeyboardEvent(eventType, {
-                key: keyName,
-                code: keyName,
-                keyCode: keyCode,
-                which: keyCode,
-                bubbles: true,
-                cancelable: true
-            });
-            document.dispatchEvent(event);
-        }
-
-        function setupButton(id, keyCode, keyName) {
-            const btn = document.getElementById(id);
-            btn.addEventListener("touchstart", (e) => {
-                e.preventDefault();
-                simulateKey(keyCode, keyName, "keydown");
-            });
-            btn.addEventListener("touchend", (e) => {
-                e.preventDefault();
-                simulateKey(keyCode, keyName, "keyup");
-            });
-        }
-
-        setupButton("btn-left", 37, "ArrowLeft");
-        setupButton("btn-right", 39, "ArrowRight");
-        setupButton("btn-jump", 38, "ArrowUp");
-        setupButton("btn-down", 40, "ArrowDown");
+        // Forzar pantalla completa al primer toque
+        document.addEventListener("touchstart", function() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+        }, {once: true});
     </script>
 </body>
 </html>
