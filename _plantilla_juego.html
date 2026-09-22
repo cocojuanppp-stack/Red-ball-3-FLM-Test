@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>__NOMBRE__ — __VOL__ | Game Red Ball</title>
+<style>
+  :root{
+    --rojo:#e5341f; --rojo-osc:#a3220f; --amarillo:#f0b429;
+    --tinta:#12100e; --tinta2:#1c1916; --hueso:#f2ece1; --linea:#3a332b;
+    --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:var(--tinta); color:var(--hueso);
+    font-family:"Futura PT","Century Gothic","Trebuchet MS",-apple-system,sans-serif;
+    display:flex; flex-direction:column; height:100%; overflow:hidden;
+  }
+  a{color:inherit;}
+  .barra{
+    display:flex; align-items:center; gap:10px;
+    padding:calc(10px + var(--safe-t)) 12px 10px;
+    background:var(--tinta2); border-bottom:1px solid var(--linea);
+    flex:0 0 auto;
+  }
+  .barra h1{font-size:14px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;}
+  .btn-icono{
+    background:#2a251f; border:1px solid var(--linea); color:var(--hueso);
+    width:36px;height:36px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    cursor:pointer; flex:0 0 auto; text-decoration:none;
+  }
+  .btn-icono:active{background:var(--rojo-osc);}
+  #escenario-wrap{
+    flex:1; position:relative; background:#000;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; touch-action:none;
+  }
+  #ruffle-host{width:100%;height:100%;position:relative;}
+  #ruffle-host object,#ruffle-host embed,#ruffle-host ruffle-player{width:100% !important;height:100% !important;}
+  .pantalla-carga{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;background:#000;z-index:2;
+  }
+  .spinner{width:38px;height:38px;border-radius:50%;border:4px solid #2a251f;border-top-color:var(--rojo);animation:girar .8s linear infinite;}
+  @keyframes girar{to{transform:rotate(360deg);}}
+  .pantalla-carga p{font-size:12.5px;color:#c9c2b6;margin:0;text-align:center;padding:0 20px;}
+  .controles{position:absolute;inset:0;z-index:5;pointer-events:none;padding-bottom:calc(14px + var(--safe-b));}
+  .dpad{position:absolute;left:16px;bottom:calc(14px + var(--safe-b));display:grid;grid-template-columns:56px 56px;grid-template-rows:56px;gap:10px;pointer-events:auto;}
+  .tecla{width:56px;height:56px;background:rgba(242,236,225,.14);border:2px solid rgba(242,236,225,.35);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--hueso);-webkit-user-select:none;user-select:none;}
+  .tecla.activa{background:rgba(240,180,41,.5);border-color:var(--amarillo);}
+  .btn-salto{position:absolute;right:20px;bottom:calc(14px + var(--safe-b));width:78px;height:78px;border-radius:50%;background:rgba(229,52,31,.32);border:2px solid rgba(255,140,120,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;letter-spacing:.05em;color:var(--hueso);pointer-events:auto;-webkit-user-select:none;user-select:none;text-transform:uppercase;}
+  .btn-salto.activa{background:rgba(229,52,31,.75);}
+  .franja-walk{flex:0 0 auto;background:var(--tinta2);border-top:1px solid var(--linea);padding:10px 14px calc(10px + var(--safe-b));display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .franja-walk a{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--hueso);text-decoration:none;background:#2a251f;border:1px solid var(--linea);padding:8px 12px;border-radius:10px;}
+  .franja-walk .yt{width:18px;height:13px;background:#ff0000;border-radius:4px;position:relative;flex:0 0 auto;}
+  .franja-walk .yt::after{content:"";position:absolute;top:3px;left:6px;border-left:6px solid #fff;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;}
+  .franja-walk .switch-mini{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#c9c2b6;margin-left:auto;}
+  .switch{position:relative;width:40px;height:23px;background:#3a332b;border-radius:999px;border:none;cursor:pointer;flex:0 0 auto;}
+  .switch::after{content:"";position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;background:var(--hueso);border-radius:50%;transition:transform .18s ease;}
+  .switch.on{background:var(--amarillo);}
+  .switch.on::after{transform:translateX(17px);}
+</style>
+</head>
+<body>
+
+<div class="barra">
+  <a class="btn-icono" href="__RUTA_CATALOGO__" aria-label="Volver al catálogo" title="Volver al catálogo">←</a>
+  <h1>__NOMBRE__ — __VOL__</h1>
+  <button class="btn-icono" id="btnControles" aria-label="Mostrar/ocultar controles">🕹️</button>
+  <button class="btn-icono" id="btnFull" aria-label="Pantalla completa">⛶</button>
+</div>
+
+<div id="escenario-wrap">
+  <div id="ruffle-host"></div>
+
+  <div class="pantalla-carga" id="pantallaCarga">
+    <div class="spinner"></div>
+    <p id="textoCarga">Cargando emulador Ruffle…</p>
+  </div>
+
+  <div class="controles activo" id="controles">
+    <div class="dpad">
+      <div class="tecla" data-tecla="ArrowLeft" style="grid-column:1;grid-row:1;">◀</div>
+      <div class="tecla" data-tecla="ArrowRight" style="grid-column:2;grid-row:1;">▶</div>
+    </div>
+    <div class="btn-salto" data-tecla="ArrowUp">SALTAR</div>
+  </div>
+</div>
+
+<div class="franja-walk">
+  <a href="https://www.youtube.com/results?search_query=__BUSQUEDA_URL__" target="_blank" rel="noopener">
+    <span class="yt"></span> Ver walkthrough en YouTube
+  </a>
+  <div class="switch-mini">
+    Modo patata
+    <button class="switch" id="switchPatata" aria-label="Activar modo patata"></button>
+  </div>
+</div>
+
+<script>
+const ARCHIVO_SWF = "__ARCHIVO_SWF__";
+let modoPatata = false;
+let rufflePlayer = null;
+let ruffleApiPromesa = null;
+
+const ruffleHost = document.getElementById('ruffle-host');
+const pantallaCarga = document.getElementById('pantallaCarga');
+const textoCarga = document.getElementById('textoCarga');
+const controlesEl = document.getElementById('controles');
+const switchPatata = document.getElementById('switchPatata');
+
+function cargarRuffle(){
+  if (ruffleApiPromesa) return ruffleApiPromesa;
+  ruffleApiPromesa = new Promise((resolve, reject) => {
+    if (window.RufflePlayer) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = "https://unpkg.com/@ruffle-rs/ruffle@nightly/ruffle.js";
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("No se pudo cargar Ruffle. Revisa tu conexión."));
+    document.head.appendChild(s);
+  });
+  return ruffleApiPromesa;
+}
+
+async function iniciarJuego(){
+  pantallaCarga.style.display = 'flex';
+  textoCarga.textContent = 'Cargando emulador Ruffle…';
+  ruffleHost.innerHTML = '';
+
+  try{
+    await cargarRuffle();
+  }catch(e){
+    textoCarga.textContent = 'Sin conexión: no se pudo cargar el emulador Ruffle.';
+    return;
+  }
+
+  textoCarga.textContent = 'Cargando juego…';
+
+  const ruffleApi = window.RufflePlayer.newest();
+  const player = ruffleApi.createPlayer();
+  ruffleHost.appendChild(player);
+
+  const config = {
+    autoplay:"on", unmuteOverlay:"hidden", letterbox:"on",
+    backgroundColor:"#000000", splashScreen:false,
+  };
+  if (modoPatata){
+    config.quality = "low";
+    config.volume = 0;
+    config.maxExecutionDuration = { secs:30, nanos:0 };
+  } else {
+    config.quality = "medium";
+    config.volume = 1;
+  }
+
+  try{
+    await player.load({ url: ARCHIVO_SWF, ...config });
+    pantallaCarga.style.display = 'none';
+  }catch(err){
+    textoCarga.textContent = 'Error al cargar el archivo .swf: ' + (err && err.message ? err.message : err);
+  }
+  rufflePlayer = player;
+}
+
+switchPatata.addEventListener('click', () => {
+  modoPatata = !modoPatata;
+  switchPatata.classList.toggle('on', modoPatata);
+  iniciarJuego(); // recarga con la nueva calidad
+});
+
+document.getElementById('btnFull').addEventListener('click', () => {
+  const el = document.getElementById('escenario-wrap');
+  if (!document.fullscreenElement){
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen).call(el);
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+document.getElementById('btnControles').addEventListener('click', () => {
+  controlesEl.classList.toggle('activo');
+});
+
+function despacharTecla(tipo, codigo){
+  const evento = new KeyboardEvent(tipo, { key:codigo, code:codigo, bubbles:true, cancelable:true });
+  document.dispatchEvent(evento);
+  window.dispatchEvent(evento);
+}
+document.querySelectorAll('[data-tecla]').forEach(el => {
+  const codigo = el.getAttribute('data-tecla');
+  const presionar = (e) => { e.preventDefault(); el.classList.add('activa'); despacharTecla('keydown', codigo); };
+  const soltar = (e) => { e.preventDefault(); el.classList.remove('activa'); despacharTecla('keyup', codigo); };
+  el.addEventListener('touchstart', presionar, {passive:false});
+  el.addEventListener('touchend', soltar, {passive:false});
+  el.addEventListener('touchcancel', soltar, {passive:false});
+  el.addEventListener('mousedown', presionar);
+  el.addEventListener('mouseup', soltar);
+  el.addEventListener('mouseleave', soltar);
+});
+
+iniciarJuego();
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{
+  "juegos": [
+    {
+      "slug": "red-ball-1-entrega",
+      "ruta": "games/red-ball-1-entrega/index.html",
+      "nombre": "Red Ball",
+      "vol": "1ª entrega",
+      "desc": "El clásico original",
+      "color1": "#ff7a5c",
+      "color2": "#a3220f"
+    },
+    {
+      "slug": "red-ball-17-levels-edici-n-extendida",
+      "ruta": "games/red-ball-17-levels-edici-n-extendida/index.html",
+      "nombre": "Red Ball 17 Levels",
+      "vol": "Edición extendida",
+      "desc": "Versión con 17 niveles extra",
+      "color1": "#ff9a7c",
+      "color2": "#c23515"
+    },
+    {
+      "slug": "red-ball-2-2-entrega",
+      "ruta": "games/red-ball-2-2-entrega/index.html",
+      "nombre": "Red Ball 2",
+      "vol": "2ª entrega",
+      "desc": "Nuevos obstáculos y trampas",
+      "color1": "#ff6a4a",
+      "color2": "#8f1c0c"
+    },
+    {
+      "slug": "red-ball-3-3-entrega",
+      "ruta": "games/red-ball-3-3-entrega/index.html",
+      "nombre": "Red Ball 3",
+      "vol": "3ª entrega",
+      "desc": "Más niveles, más dificultad",
+      "color1": "#ff5a3a",
+      "color2": "#7a1608"
+    },
+    {
+      "slug": "red-ball-4-volumen-1",
+      "ruta": "games/red-ball-4-volumen-1/index.html",
+      "nombre": "Red Ball 4",
+      "vol": "Volumen 1",
+      "desc": "75 niveles, física mejorada",
+      "color1": "#e5341f",
+      "color2": "#6b1206"
+    },
+    {
+      "slug": "red-ball-4-volumen-2",
+      "ruta": "games/red-ball-4-volumen-2/index.html",
+      "nombre": "Red Ball 4",
+      "vol": "Volumen 2",
+      "desc": "Nuevos escenarios y jefes",
+      "color1": "#e5341f",
+      "color2": "#5c0f05"
+    },
+    {
+      "slug": "red-ball-4-volumen-3",
+      "ruta": "games/red-ball-4-volumen-3/index.html",
+      "nombre": "Red Ball 4",
+      "vol": "Volumen 3",
+      "desc": "El desafío final de la saga",
+      "color1": "#e5341f",
+      "color2": "#4d0c04"
+    },
+    {
+      "slug": "red-blue-balls-1-entrega",
+      "ruta": "games/red-blue-balls-1-entrega/index.html",
+      "nombre": "Red & Blue Balls",
+      "vol": "1ª entrega",
+      "desc": "Cooperativo: controla ambas bolas",
+      "color1": "#1f6fe5",
+      "color2": "#e5341f"
+    },
+    {
+      "slug": "red-blue-balls-2-2-entrega",
+      "ruta": "games/red-blue-balls-2-2-entrega/index.html",
+      "nombre": "Red & Blue Balls 2",
+      "vol": "2ª entrega",
+      "desc": "Puzzles duales más complejos",
+      "color1": "#1f6fe5",
+      "color2": "#e5341f"
+    },
+    {
+      "slug": "red-blue-balls-3-3-entrega",
+      "ruta": "games/red-blue-balls-3-3-entrega/index.html",
+      "nombre": "Red & Blue Balls 3",
+      "vol": "3ª entrega",
+      "desc": "La aventura dual definitiva",
+      "color1": "#1f6fe5",
+      "color2": "#e5341f"
+    }
+  ]
+}
